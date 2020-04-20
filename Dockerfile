@@ -1,8 +1,7 @@
-FROM ubuntu:18.04 as base
+FROM ubuntu:18.04
 RUN ["apt-get", "update", "-qq"]
 RUN ["apt-get", "install", "-qq", "--no-install-recommends", "perl", "imagemagick", "gnuplot-nox", "locales"]
 
-FROM base as builder
 RUN ["apt-get", "install", "-qq", "git-lfs"]
 
 RUN ["apt-get", "install", "-qq", "build-essential", "automake", "libtool", "bison"]
@@ -32,11 +31,6 @@ RUN ["bash", "job_test"]
 WORKDIR /opt/CIVET/Linux-x86_64
 RUN ["rm", "-r", "SRC", "building", "info", "man"]
 RUN ["chmod", "--recursive", "u+rX,g+rX,o+rX", "/opt/CIVET" ]
-
-# multi-stage build
-FROM base
-RUN ["mkdir", "-p", "/opt/CIVET/Linux-x86_64"]
-COPY --from=builder /opt/CIVET/Linux-x86_64/ /opt/CIVET/Linux-x86_64/
 
 # init.sh environment variables, should be equivalent to
 # printf "%s\n\n" "source /opt/CIVET/Linux-x86_64/init.sh" >> ~/.bashrc
