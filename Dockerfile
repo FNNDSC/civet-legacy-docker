@@ -1,4 +1,7 @@
 FROM ubuntu:18.04
+
+ARG ARCH=x86_64
+
 RUN ["apt-get", "update", "-qq"]
 RUN ["apt-get", "install", "-qq", "--no-install-recommends", "perl", "imagemagick", "gnuplot-nox", "locales"]
 
@@ -20,21 +23,21 @@ WORKDIR /opt/CIVET
 RUN ["git", "lfs", "pull"]
 
 # copy configuration so installation can be non-interactive
-RUN ["mkdir", "-p", "Linux-x86_64/SRC/"]
-RUN ["tar", "-zxf", "TGZ/netpbm-10.35.94.tgz", "-C", "Linux-x86_64/SRC/"]
-COPY provision/netpbm/Makefile.config Linux-x86_64/SRC/netpbm-10.35.94
+RUN mkdir -p Linux-$ARCH/SRC
+RUN tar -zxf TGZ/netpbm-10.35.94.tgz -C Linux-$ARCH/SRC/
+COPY provision/netpbm/Makefile.config Linux-$ARCH/SRC/netpbm-10.35.94
 
 RUN ["bash", "install.sh"]
 RUN ["bash", "job_test"]
 
 # clean up build files to reduce image size
-WORKDIR /opt/CIVET/Linux-x86_64
+WORKDIR /opt/CIVET/Linux-$ARCH
 RUN ["rm", "-r", "SRC", "building", "info", "man"]
 RUN ["chmod", "--recursive", "u+rX,g+rX,o+rX", "/opt/CIVET" ]
 
 # init.sh environment variables, should be equivalent to
 # printf "%s\n\n" "source /opt/CIVET/Linux-x86_64/init.sh" >> ~/.bashrc
-ENV MNIBASEPATH=/opt/CIVET/Linux-x86_64 CIVET=CIVET-2.1.1
+ENV MNIBASEPATH=/opt/CIVET/Linux-$ARCH CIVET=CIVET-2.1.1
 ENV PATH=$MNIBASEPATH/$CIVET:$MNIBASEPATH/$CIVET/progs:$MNIBASEPATH/bin:$PATH \
     LD_LIBRARY_PATH=$MNIBASEPATH/lib \
     MNI_DATAPATH=$MNIBASEPATH/share \
@@ -46,4 +49,5 @@ ENV PATH=$MNIBASEPATH/$CIVET:$MNIBASEPATH/$CIVET/progs:$MNIBASEPATH/bin:$PATH \
     MINC_COMPRESS=4 \
     CIVET_JOB_SCHEDULER=DEFAULT
 
-CMD ["/opt/CIVET/Linux-x86_64/CIVET-2.1.1/CIVET_Processing_Pipeline", "-help"]
+RUN ln -s $MNIBASEPATH/$CIVET/CIVET_Processing_Pipeline /CIVET_Processing_Pipeline
+CMD ["/CIVET_Processing_Pipeline", "-help"]

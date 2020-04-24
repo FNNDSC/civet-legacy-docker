@@ -15,7 +15,21 @@ At this point, the following versions are available:
 
 The compilation procedure is the same for all versions of CIVET.
 
+## Build in Docker
+
+```bash
+docker build -t civet:2.1.1 $PWD
+```
+
+Or on a non-x86_64 architecture:
+
+```
+docker build -t civet:2.1.1 --build-arg ARCH=$(uname -m) $PWD
+```
+
 ## Download CIVET from GitHub
+
+The following instructions are how to compile CIVET on bare-metal.
 
 If you really wish to continue and compile CIVET from GitHub sources, you need follow the
 instructions before download:
