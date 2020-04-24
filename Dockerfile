@@ -22,9 +22,10 @@ COPY . /opt/CIVET
 WORKDIR /opt/CIVET
 RUN ["git", "lfs", "pull"]
 
-# copy configuration so installation can be non-interactive
-RUN mkdir -p Linux-$ARCH/SRC
-RUN tar -zxf TGZ/netpbm-10.35.94.tgz -C Linux-$ARCH/SRC/
+# patch in TGZ using the stuff in provision/
+COPY provision /opt/CIVET
+RUN sh provision/unpack.sh TGZ Linux-$ARCH/SRC/
+RUN sh provision/update_guess.sh provision/config.guess Linux-$ARCH/SRC/
 COPY provision/netpbm/Makefile.config Linux-$ARCH/SRC/netpbm-10.35.94
 
 RUN ["bash", "install.sh"]
