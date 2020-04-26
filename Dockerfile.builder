@@ -5,14 +5,29 @@ ARG ARCH=x86_64
 RUN ["apt-get", "update", "-qq"]
 RUN ["apt-get", "install", "-qq", "--no-install-recommends", "perl", "imagemagick", "gnuplot-nox", "locales"]
 
+RUN ["apt-get", "install", "-qq", "git-lfs"]
+
+RUN ["apt-get", "install", "-qq", "build-essential", "automake", "libtool", "bison"]
+RUN ["apt-get", "install", "-qq", "libz-dev", "libjpeg-dev", "libpng-dev", "libtiff-dev", \
+    "liblcms2-dev", "flex", "libx11-dev", "freeglut3-dev", \
+    "libxmu-dev", "libxi-dev", "libqt4-dev"]
+
 RUN ["rm", "/bin/sh"]
 RUN ["ln", "-s", "/bin/bash", "/bin/sh"]
 
-COPY dist /opt/CIVET
+# use HTTPS instead of SSH for git clone
+RUN ["git", "config", "--global", "url.https://github.com/.insteadOf", "git@github.com:"]
 
-# clean up build files to reduce image size
-WORKDIR /opt/CIVET/Linux-$ARCH
-RUN ["rm", "-r", "SRC", "building", "info", "man"]
+COPY . /opt/CIVET
+WORKDIR /opt/CIVET
+RUN ["git", "lfs", "pull"]
+
+# patch in TGZ using the stuff in provision/
+RUN make USE_GIT=yes untar
+RUN sh provision/update_guess.sh provision/config.guess Linux-$ARCH/SRC/
+COPY provision/netpbm/Makefile.config Linux-$ARCH/SRC/netpbm-10.35.94
+
+RUN ["bash", "install.sh"]
 
 # init.sh environment variables, should be equivalent to
 # printf "%s\n\n" "source /opt/CIVET/Linux-x86_64/init.sh" >> ~/.bashrc
@@ -27,6 +42,3 @@ ENV PATH=$MNIBASEPATH/$CIVET:$MNIBASEPATH/$CIVET/progs:$MNIBASEPATH/bin:$PATH \
     MINC_FORCE_V2=1 \
     MINC_COMPRESS=4 \
     CIVET_JOB_SCHEDULER=DEFAULT
-
-RUN ln -s $MNIBASEPATH/$CIVET/CIVET_Processing_Pipeline /CIVET_Processing_Pipeline
-CMD ["/CIVET_Processing_Pipeline", "-help"]
