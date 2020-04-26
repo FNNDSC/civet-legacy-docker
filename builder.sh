@@ -35,6 +35,12 @@ shift $((OPTIND-1))
 
 tag=${1:-fnndsc/civet_moc_ppc64:2.1.1}
 
+if [ -d "$dist" ]; then
+  # delete the folder before building to minimize build context
+  # using a container here to work around permission issues
+  docker run --rm -v "$dist:/dist:z" ubuntu:18.04 rm -rf /dist
+fi
+
 # 1. compile binaries in a container
 docker build -t civet:builder --build-arg ARCH=$arch -f Dockerfile.builder $PWD
 
@@ -44,9 +50,14 @@ if [ -n "$run_test" ]; then
 fi
 
 # 2. copy binaries to host
-mkdir -p "$dist"
+mkdir "$dist"
+
+# list of folders and files to copy over from the builder
+# don't copy everything, the SRC folder is 6 GB of useless stuff!
+copy_whitelist="{CIVET-2.1.1,bin,etc,include,init.csh,init.sh,lib,man,perl,share}"
+
 docker run --rm -v "$dist:/dist:z" civet:builder /bin/bash -c \
-  "rm -rf /dist/* && cp -r /opt/CIVET/Linux-$arch /dist && chown -R $(id -u):$(id -g) /dist"
+  "cp -r /opt/CIVET/Linux-$arch/$copy_whitelist /dist && chown -R $(id -u):$(id -g) /dist"
 
 # 2.5 delete builder image
 if [ -n "$remove_builder" ]; then
