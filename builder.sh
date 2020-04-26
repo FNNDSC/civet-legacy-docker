@@ -41,7 +41,7 @@ if [ -d "$dist" ]; then
 fi
 
 # 1. compile binaries in a container
-#docker build -t civet:builder --build-arg ARCH=$arch -f Dockerfile.builder $PWD
+docker build -t civet:builder --build-arg ARCH=$arch -f Dockerfile.builder $PWD
 
 # 1.5 run test job in builder (optional)
 if [ -n "$run_test" ]; then
