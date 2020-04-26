@@ -10,9 +10,7 @@ RUN ["ln", "-s", "/bin/bash", "/bin/sh"]
 
 COPY dist /opt/CIVET
 
-# clean up build files to reduce image size
 WORKDIR /opt/CIVET/Linux-$ARCH
-RUN ["rm", "-r", "SRC", "building"]
 
 # init.sh environment variables, should be equivalent to
 # printf "%s\n\n" "source /opt/CIVET/Linux-x86_64/init.sh" >> ~/.bashrc
