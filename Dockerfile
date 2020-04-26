@@ -23,12 +23,12 @@ WORKDIR /opt/CIVET
 RUN ["git", "lfs", "pull"]
 
 # patch in TGZ using the stuff in provision/
-RUN ["make", "untar"]
+RUN make USE_GIT=yes untar
 RUN sh provision/update_guess.sh provision/config.guess Linux-$ARCH/SRC/
 COPY provision/netpbm/Makefile.config Linux-$ARCH/SRC/netpbm-10.35.94
 
 RUN ["bash", "install.sh"]
-RUN ["bash", "job_test"]
+# RUN ["bash", "job_test"]
 
 # clean up build files to reduce image size
 WORKDIR /opt/CIVET/Linux-$ARCH
