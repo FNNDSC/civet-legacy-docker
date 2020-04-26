@@ -41,7 +41,7 @@ if [ -d "$dist" ]; then
 fi
 
 # 1. compile binaries in a container
-docker build -t civet:builder --build-arg ARCH=$arch -f Dockerfile.builder $PWD
+#docker build -t civet:builder --build-arg ARCH=$arch -f Dockerfile.builder $PWD
 
 # 1.5 run test job in builder (optional)
 if [ -n "$run_test" ]; then
@@ -49,14 +49,15 @@ if [ -n "$run_test" ]; then
 fi
 
 # 2. copy binaries to host
-mkdir "$dist"
+mkdir -p "$dist/Linux-$arch"
 
 # list of folders and files to copy over from the builder
 # don't copy everything, the SRC folder is 6 GB of useless stuff!
 copy_whitelist="{CIVET-2.1.1,bin,etc,include,init.csh,init.sh,lib,man,perl,share}"
 
 docker run --rm -v "$dist:/dist:z" civet:builder /bin/bash -c \
-  "cp -r /opt/CIVET/Linux-$arch/$copy_whitelist /dist && chown -R $(id -u):$(id -g) /dist"
+  "cp -r /opt/CIVET/Linux-$arch/$copy_whitelist /dist/Linux-$arch \
+  && chown -R $(id -u):$(id -g) /dist"
 
 # 2.5 delete builder image
 if [ -n "$remove_builder" ]; then
