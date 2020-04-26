@@ -45,7 +45,8 @@ fi
 
 # 2. copy binaries to host
 mkdir -p "$dist"
-docker run --rm -v "$dist:/dist:z" civet:builder /bin/bash -c "rm -rf /dist/* && cp -r /opt/CIVET/Linux-$arch /dist"
+docker run --rm -v "$dist:/dist:z" civet:builder /bin/bash -c \
+  "rm -rf /dist/* && cp -r /opt/CIVET/Linux-$arch /dist && chown -R $(id -u):$(id -g) /dist"
 
 # 2.5 delete builder image
 if [ -n "$remove_builder" ]; then
