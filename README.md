@@ -16,3 +16,23 @@ Software support on the Mass Open Cloud imposes these limitations:
 ## Changes
 
 `config.guess` (2008) was updated to 2020-01-01.
+
+## Development
+
+Run `builder.sh`
+
+```
+usage: ./builder.sh [-r] [TAG]
+
+Compile CIVET in a docker container on a non-x86_64 host
+without support for Docker multi-stage builds.
+
+Binaries will be copied to /mnt/wdext/acelab2018/CIVET_Full_Project/dist
+
+options:
+-h     show this help message and exit
+-r     remove the builder image
+-d     remove the binaries
+-t     run test job
+[TAG]  image name [default: fnndsc/civet_moc_ppc64:2.1.1]
+```
