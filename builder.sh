@@ -37,8 +37,7 @@ tag=${1:-fnndsc/civet_moc_ppc64:2.1.1}
 
 if [ -d "$dist" ]; then
   # delete the folder before building to minimize build context
-  # using a container here to work around permission issues
-  docker run --rm -v "$dist:/dist:z" ubuntu:18.04 rm -rf /dist
+  rm -rf "$dist"
 fi
 
 # 1. compile binaries in a container
